@@ -2,6 +2,7 @@ import random
 import threading
 import urllib.request
 from queue import Queue
+import os
 
 
 def download_image(q):
@@ -12,6 +13,12 @@ def download_image(q):
         print(f"Downloading {url}")
         # Download the image from the URL and save it to disk
         urllib.request.urlretrieve(url, filename)
+
+        # Delete the default Github images (between 1.5 kB and 1.7 kB)
+        filesize = os.path.getsize(filename)
+        if (filesize >= 1500 and filesize <= 1700) or filesize == 5065:
+            os.remove(filename)
+            print("Deleted")
 
         # Mark the task as done in the queue
         q.task_done()
@@ -29,7 +36,7 @@ for i in range(40):
 # Download images indefinitely
 while True:
     # Generate a random user ID between 1 and 1000000
-    user_id = random.randint(1, 1000000)
+    user_id = random.randint(1, 10e7)
 
     # Construct the URL for the user's avatar
     url = f"https://avatars.githubusercontent.com/u/{user_id}"
